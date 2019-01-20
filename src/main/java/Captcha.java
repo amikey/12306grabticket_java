@@ -1,3 +1,4 @@
+import org.apache.http.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +15,24 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.tools.Tool;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Captcha{
@@ -72,24 +88,42 @@ public class Captcha{
             if (response.getStatusLine().getStatusCode() == 200){
                 // 得到返回文本
                 String responseText = Tools.responseToString(response);
-                // 处理返回文本为json格式字符串
-                String jsonStr = responseText.substring(responseText.indexOf("(")+1, responseText.length()-2);
-                // 创建Json对象从返回的文本
-                JSONObject jsonData = JSONObject.parseObject(jsonStr);
-                // 获取返回结果, 验证码base64字符串, 结果信息, 结果码
-                String captchaBase64Str = jsonData.getString("image");
-                String resultMsg  = jsonData.getString("result_message");
-                String resultCode = jsonData.getString("result_code");
-                // 正确返回的结果, 用于匹配返回结果
-                String trueCode = "0";
-                String trueMsg  = "生成验证码成功";
-                // 生成验证码成功
-                if (resultCode.equals(trueCode) && resultMsg.equals(trueMsg)){
-                    getCaptchaReturnResult.setStatus(true);
-                    getCaptchaReturnResult.setResult(captchaBase64Str);
-                    getCaptchaReturnResult.setTimeValue(timeValue);
-                    getCaptchaReturnResult.setParmasCallback(paramsCallback);
-                    return getCaptchaReturnResult;
+                // 获取响应头, 判断返回请求格式
+                boolean isJson = false;
+                boolean isXml  = false;
+                Header[] headers = response.getAllHeaders();
+                // 遍历响应头获取连接类型
+                for (Header header: headers){
+                    if ("Content-Type".equals(header.getName())){
+                        if ("application/json;charset=UTF-8".equals(header.getValue())){
+                            isJson = true;
+                            break;
+                        }
+                        if ("application/xhtml+xml;charset=UTF-8".equals(header.getValue())){
+                            isXml = true;
+                            break;
+                        }
+                    }
+                }
+                if (isJson) {
+                    String captchaBase64Str = getCaptchaBase64FromJson(responseText);
+                    if (!"".equals(captchaBase64Str)){
+                        getCaptchaReturnResult.setStatus(true);
+                        getCaptchaReturnResult.setResult(captchaBase64Str);
+                        getCaptchaReturnResult.setTimeValue(timeValue);
+                        getCaptchaReturnResult.setParmasCallback(paramsCallback);
+                        return getCaptchaReturnResult;
+                    }
+                }
+                if (isXml){
+                    String captchaBase64Str = getCaptchaBase64FromXml(responseText);
+                    if (!"".equals(captchaBase64Str)){
+                        getCaptchaReturnResult.setStatus(true);
+                        getCaptchaReturnResult.setResult(captchaBase64Str);
+                        getCaptchaReturnResult.setTimeValue(timeValue);
+                        getCaptchaReturnResult.setParmasCallback(paramsCallback);
+                        return getCaptchaReturnResult;
+                    }
                 }
             }
         }
@@ -295,6 +329,64 @@ public class Captcha{
         return checkCode;
     }
 
+    /**
+     *      如果验证码返回格式为 xml 则用这个进行解析
+     *
+     * @param responseText      返回数据text
+     * @return                  验证码base64
+     */
+    private static String getCaptchaBase64FromXml(String responseText){
+        try {
+            // File inputFile = new File(testStr);
+            InputStream inputStream = new ByteArrayInputStream(responseText.getBytes(StandardCharsets.UTF_8));
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder;
+            dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(inputStream);
+            doc.getDocumentElement().normalize();
+            XPath xPath =  XPathFactory.newInstance().newXPath();
+            String expression = "/HashMap/image";
+            NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node nNode = nodeList.item(i);
+                return nNode.getTextContent();
+            }
+        } catch (ParserConfigurationException e) {
+            logger.info("返回xml格式数据，但是解析错误");
+        } catch (SAXException e) {
+            logger.info("返回xml格式数据，但是解析错误");
+        } catch (XPathExpressionException e) {
+            logger.info("返回xml格式数据，但是xpath错误");
+        }catch (IOException e){
+            logger.info("返回xml格式数据，但是解析错误");
+        }
+        return "";
+    }
+
+    /**
+     *      如果验证码返回格式为 json 则用这个进行解析
+     *
+     * @param responseText      返回数据text
+     * @return                  验证码base64
+     */
+    private static String getCaptchaBase64FromJson(String responseText){
+        // 处理返回文本为json格式字符串
+        String jsonStr = responseText.substring(responseText.indexOf("(")+1, responseText.length()-2);
+        // 创建Json对象从返回的文本
+        JSONObject jsonData = JSONObject.parseObject(jsonStr);
+        // 获取返回结果, 验证码base64字符串, 结果信息, 结果码
+        String captchaBase64Str = jsonData.getString("image");
+        String resultMsg  = jsonData.getString("result_message");
+        String resultCode = jsonData.getString("result_code");
+        // 正确返回的结果, 用于匹配返回结果
+        String trueCode = "0";
+        String trueMsg  = "生成验证码成功";
+        // 生成验证码成功
+        if (resultCode.equals(trueCode) && resultMsg.equals(trueMsg)){
+            return captchaBase64Str;
+        }
+        return "";
+    }
 }
 
 /**

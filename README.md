@@ -5,5 +5,7 @@
 ## 使用方法
 在 Main 方法里配置，抢票规则，说明很详细。
 
-
+## 运行效果
+![avatar](/img/1.png)
+![avatar](/img/2.jpg)
 

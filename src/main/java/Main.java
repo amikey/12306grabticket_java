@@ -114,12 +114,12 @@ public class Main {
 
         // 创建登陆实例准备登陆
         Login login = new Login(session, username12306, password12306);
-        LoginMethodReturnResutl loginMethodReturnResutl = login.loginMethod();
-        if (!loginMethodReturnResutl.getStatus()){
-            return;
-        }else{
-            session = loginMethodReturnResutl.getSession();
+        LoginMethodReturnResutl loginMethodReturnResutl;
+        loginMethodReturnResutl = login.loginMethod();
+        while (!loginMethodReturnResutl.getStatus()){
+            loginMethodReturnResutl = login.loginMethod();
         }
+        session = loginMethodReturnResutl.getSession();
 
         // 创建订票实例准备订票
         BookingTicket bookingTicket = new BookingTicket(session);
@@ -152,7 +152,7 @@ public class Main {
         String content = bookingTicketMethodReturnResult.getBookingTicketResult();
         // 发送通知
         SendMessage.sendEmailText(host, port, usernameEmail, passwordEmail, senderEmail, receiverEmail, subject, content, true);
-
+        logger.info("发送通知成功");
     }
 
     /**

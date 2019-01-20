@@ -341,38 +341,61 @@ public class Login {
         // 创建验证码实例用于获取，标记，检查验证码
         Captcha captcha = new Captcha(this.session);
 
+
         // 创建获取验证码对象
         logger.info("获取验证码......");
         GetCaptchaReturnResult getCaptchaReturnResult;
-        getCaptchaReturnResult = captcha.getCaptcha();
-        // 获取验证码失败停止
-        if (!getCaptchaReturnResult.getStatus()){
-            logger.info("获取验证码失败！");
+        try{
+            getCaptchaReturnResult = captcha.getCaptcha();
+            // 获取验证码失败停止
+            if (!getCaptchaReturnResult.getStatus()){
+                logger.info("获取验证码失败！");
+                return loginMethodReturnResutlFalse();
+            }
+        }catch (Exception e){
+            logger.info("获取验证码超时！");
             return loginMethodReturnResutlFalse();
         }
+
 
         // 创建获取标记对象
         logger.info("识别验证码......");
         MarkCaptchaReturnResult markCaptchaReturnResult;
-        markCaptchaReturnResult = captcha.markCaptchaV2(getCaptchaReturnResult.getResult());
-        // 标记失败停止
-        if (!markCaptchaReturnResult.getStatus()){
-            logger.info("识别验证码失败！");
+        try{
+            markCaptchaReturnResult = captcha.markCaptchaV2(getCaptchaReturnResult.getResult());
+            // 标记失败停止
+            if (!markCaptchaReturnResult.getStatus()){
+                // 公共服务器标记失败用自建服务器标记
+                markCaptchaReturnResult = captcha.markCaptchaV1(getCaptchaReturnResult.getResult());
+                if (!markCaptchaReturnResult.getStatus()){
+                    logger.info("识别验证码失败！");
+                    return loginMethodReturnResutlFalse();
+                }
+            }
+        }catch (Exception e){
+            logger.info("识别验证码超时！");
             return loginMethodReturnResutlFalse();
         }
+
 
         // 创建检查验证码对象
         logger.info("验证验证码......");
         CheckCaptchaReturnResult checkCaptchaReturnResult;
-        checkCaptchaReturnResult = captcha.checkCaptcha(
-                getCaptchaReturnResult.getParmasCallback(),
-                markCaptchaReturnResult.getResult(),
-                getCaptchaReturnResult.getTimeValue());
-        // 检查失败退出
-        if (!checkCaptchaReturnResult.getStatus()){
-            logger.info("验证验证码失败！");
+        try {
+            checkCaptchaReturnResult = captcha.checkCaptcha(
+                    getCaptchaReturnResult.getParmasCallback(),
+                    markCaptchaReturnResult.getResult(),
+                    getCaptchaReturnResult.getTimeValue());
+            // 检查失败退出
+            if (!checkCaptchaReturnResult.getStatus()){
+                logger.info("验证验证码失败！");
+                return loginMethodReturnResutlFalse();
+            }
+        } catch (Exception e) {
+            logger.info("验证验证码超时！");
             return loginMethodReturnResutlFalse();
         }
+
         // 验证成功提取会话
         this.session = checkCaptchaReturnResult.getSession();
 
@@ -382,33 +405,48 @@ public class Login {
         // 尝试登陆
         logger.info("正在登陆......");
         LoginReturnResult loginReturnResult;
-        loginReturnResult = login(markCaptchaReturnResult.getResult());
-        // 如果返回密码错误则要立即停止, 否则4次错误会锁定账户
-        String passwordError = "密码错误";
-        if (loginReturnResult.getMessage().equals(passwordError)){
-            logger.info("密码错误！");
-            return loginMethodReturnResutlFalse();
-        }
-        if (!loginReturnResult.getStatus()) {
-            logger.info("登陆失败！");
+        try {
+            loginReturnResult = login(markCaptchaReturnResult.getResult());
+            // 如果返回密码错误则要立即停止, 否则4次错误会锁定账户
+            String passwordError = "密码错误";
+            if (loginReturnResult.getMessage().equals(passwordError)){
+                logger.info("密码错误！");
+                return loginMethodReturnResutlFalse();
+            }
+            if (!loginReturnResult.getStatus()) {
+                logger.info("登陆失败！");
+                return loginMethodReturnResutlFalse();
+            }
+        } catch (Exception e) {
+            logger.info("登陆超时！");
             return loginMethodReturnResutlFalse();
         }
 
         // 获取登陆tk
-        logger.info("获取登陆tk......");
+        logger.info("获取登陆token......");
         GetLoginTkReturnResult getLoginTkReturnResult;
-        getLoginTkReturnResult = getLoginTk();
-        if (!getLoginTkReturnResult.getStatus()){
-            logger.info("获取登陆tk失败");
+        try {
+            getLoginTkReturnResult = getLoginTk();
+            if (!getLoginTkReturnResult.getStatus()){
+                logger.info("获取登陆token失败");
+                return loginMethodReturnResutlFalse();
+            }
+        } catch (Exception e) {
+            logger.info("获取登陆token超时");
             return loginMethodReturnResutlFalse();
         }
 
         // 验证登陆yk
-        logger.info("验证登陆tk......");
+        logger.info("验证登陆token......");
         CheckLoginTkReturnResult checkLoginTkReturnResult;
-        checkLoginTkReturnResult = checkLoginTk();
-        if (!checkLoginTkReturnResult.getStatus()){
-            logger.info("验证登陆tk失败");
+        try {
+            checkLoginTkReturnResult = checkLoginTk();
+            if (!checkLoginTkReturnResult.getStatus()){
+                logger.info("验证登陆token失败!");
+                return loginMethodReturnResutlFalse();
+            }
+        } catch (Exception e) {
+            logger.info("验证登陆token超时!");
             return loginMethodReturnResutlFalse();
         }
         String loginInfo = "登陆成功!    用户名：" + checkLoginTkReturnResult.getLoginUsername();
