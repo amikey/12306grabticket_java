@@ -6,6 +6,9 @@
 在 Main 方法里配置，抢票规则，说明很详细。
 
 ## 运行效果
-![avatar](/img/1.png)
+查询以及订票<br>
+![avatar](/img/1.png)<br>
+
+发送邮件通知<br>
 ![avatar](/img/2.jpg)
 
