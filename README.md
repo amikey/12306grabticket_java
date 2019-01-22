@@ -12,14 +12,14 @@
 
 ## 运行效果
 查询以及订票<br>
-![avatar](/img/1.png)<br>
+![runImg](/img/1.png)<br>
 
 发送邮件通知<br>
-![avatar](/img/2.jpg)
+![emailImg](/img/2.jpg)<br>
 
 短信通知<br>
-![avatar](/img/sms.jpg)
+![smsImg-w500](/img/sms.jpg)<br>
 
 语音通知<br>
-![avatar](/img/phone.jpg)
+![phoneImg-w500](/img/phone.jpg)<br>
 
