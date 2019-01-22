@@ -18,8 +18,8 @@
 ![emailImg](/img/2.jpg)<br>
 
 短信通知<br>
-![smsImg-w500](/img/sms.jpg)<br>
+![smsImg-w100](/img/sms.jpg)<br>
 
 语音通知<br>
-![phoneImg-w500](/img/phone.jpg)<br>
+![phoneImg-w100](/img/phone.jpg)<br>
 
