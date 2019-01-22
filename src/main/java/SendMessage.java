@@ -4,12 +4,52 @@ import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.twilio.Twilio;
+// import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
+
 public class SendMessage {
 
+    public static boolean sendPhoneVoiceNotifyFromTwilio(String accountSid, String authToken, String from, String[] tos, String configPath){
+        Twilio.init(accountSid, authToken);
+        com.twilio.rest.api.v2010.account.Call call = null;
+        for (String to:tos) {
+            try {
+                call = com.twilio.rest.api.v2010.account.Call.creator(new PhoneNumber(to), new PhoneNumber(from),
+                        new URI(configPath)).create();
+            } catch (URISyntaxException e) {
+                return false;
+            }
+            if (!"QUEUED".equals(call.getStatus().name())){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean sendSMSNotifyFromTwilio(String accountSid, String authToken, String from, String[] tos, String text){
+        Twilio.init(accountSid, authToken);
+        for (String to:tos) {
+            com.twilio.rest.api.v2010.account.Message message = com.twilio.rest.api.v2010.account.Message
+                    .creator(
+                            // to
+                            new PhoneNumber(to),
+                            // from
+                            new PhoneNumber(from),
+                            text)
+                    .create();
+            if (!"QUEUED".equals(message.getStatus().name())){
+                return false;
+            }
+        }
+        return true;
+    }
     /**
      *      发送纯文本邮件
      *

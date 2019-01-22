@@ -83,7 +83,23 @@ public class Main {
         String passwordEmail = "";
         String senderEmail = "";
         String receiverEmail = "";
+        /*
+            语音和短信通知接口设置
 
+                1. 使用Twilio的通知服务，accountSid，authToken 从自己的账户中获得
+                2. 注意电话前要加国家号，例如中国为：+86 以及注意是否有发送到目标号码的权限（从Twilio网站里设置）
+                   号码示例：
+                            +8612345678912
+                3. configPath 是一个url，指向一个xml文件，具体内容参见Twilio开发者文档
+                   configPath示例：
+                            http://www.xxx.com/xxx.xml
+        */
+        String accountSid="";
+        String authToken = "";
+        String from = "";
+        String[] tos = {""};
+        String configPath = "";
+        String smsText = "恭喜您！抢到票了，请登录12306进行支付。";
 
         // 获取列车信息（单线程）
         Map<String, String> trainInfo = null;
@@ -150,9 +166,20 @@ public class Main {
         }
         String subject = String.format("12306抢票结果通知 %s %s --> %s", trainDate, fromStation, toStation);
         String content = bookingTicketMethodReturnResult.getBookingTicketResult();
+
         // 发送通知
-        SendMessage.sendEmailText(host, port, usernameEmail, passwordEmail, senderEmail, receiverEmail, subject, content, true);
-        logger.info("发送通知成功");
+        boolean sendEmailStatus = false;
+        boolean sendPhoneStatus = false;
+        boolean sendSmsStatus   = false;
+        sendEmailStatus = SendMessage.sendEmailText(host, port, usernameEmail, passwordEmail, senderEmail, receiverEmail, subject, content, true);
+        sendPhoneStatus = SendMessage.sendPhoneVoiceNotifyFromTwilio(accountSid, authToken, from, tos, configPath);
+        sendSmsStatus   = SendMessage.sendSMSNotifyFromTwilio(accountSid, authToken, from, tos, smsText);
+        if (sendEmailStatus && sendPhoneStatus && sendSmsStatus){
+            logger.info("发送通知成功");
+        }else{
+            logger.info("发送通知失败");
+        }
+
     }
 
     /**
