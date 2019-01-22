@@ -12,9 +12,9 @@
 
 ## 运行效果
 查询以及订票<br>
-<img src="/img/1.png" width="100%" height="100%"><br>
+<img src="/img/1.png" width="50%" height="50%"><br>
 发送邮件通知<br>
-<img src="/img/2.jpg" width="100%" height="100%"><br>
+<img src="/img/2.jpg" width="50%" height="50%"><br>
 短信通知<br>
 <img src="/img/sms.jpg" width="50%" height="50%"><br>
 语音通知<br>

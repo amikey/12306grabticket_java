@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="48e5f0ec-0316-452f-a3b7-d57695af8116" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -97,8 +96,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="391">
-                <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
+              <first_editor relative-caret-position="272">
+                <caret line="16" column="48" selection-start-line="16" selection-start-column="48" selection-end-line="16" selection-end-column="48" />
               </first_editor>
               <second_editor />
             </state>
@@ -244,7 +243,7 @@
       <updated>1547830790423</updated>
       <workItem from="1547830793628" duration="3872000" />
       <workItem from="1548027694055" duration="1436000" />
-      <workItem from="1548158555767" duration="2686000" />
+      <workItem from="1548158555767" duration="2967000" />
     </task>
     <task id="LOCAL-00001" summary="修改登陆逻辑以及验证码获取失败导致程序退出">
       <created>1548028697270</created>
@@ -281,11 +280,32 @@
       <option name="project" value="LOCAL" />
       <updated>1548161163419</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="修改readme">
+      <created>1548161248034</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1548161248034</updated>
+    </task>
+    <task id="LOCAL-00007" summary="再次修改readme">
+      <created>1548161331135</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1548161331135</updated>
+    </task>
+    <task id="LOCAL-00008" summary="修改readme">
+      <created>1548161462354</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1548161462354</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7994000" />
+    <option name="totallyTimeSpent" value="8275000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -363,6 +383,7 @@
     <MESSAGE value="修改登陆逻辑以及验证码获取失败导致程序退出" />
     <MESSAGE value="增加短信通知和语音通知" />
     <MESSAGE value="修复Jackson安全问题" />
+    <MESSAGE value="再次修改readme" />
     <MESSAGE value="修改readme" />
     <option name="LAST_COMMIT_MESSAGE" value="修改readme" />
   </component>
@@ -477,8 +498,8 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="391">
-            <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
+          <first_editor relative-caret-position="272">
+            <caret line="16" column="48" selection-start-line="16" selection-start-column="48" selection-end-line="16" selection-end-column="48" />
           </first_editor>
           <second_editor />
         </state>
