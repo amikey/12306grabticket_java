@@ -17,3 +17,9 @@
 发送邮件通知<br>
 ![avatar](/img/2.jpg)
 
+短信通知<br>
+![avatar](/img/sms.jpg)
+
+语音通知<br>
+![avatar](/img/phone.jpg)
+
