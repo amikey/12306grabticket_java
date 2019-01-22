@@ -12,10 +12,10 @@
 
 ## 运行效果
 查询以及订票<br>
-![runImg](/img/1.png)<br>
+![runImg-w100](/img/1.png)<br>
 
 发送邮件通知<br>
-![emailImg](/img/2.jpg)<br>
+![emailImg-w100](/img/2.jpg)<br>
 
 短信通知<br>
 ![smsImg-w100](/img/sms.jpg)<br>
