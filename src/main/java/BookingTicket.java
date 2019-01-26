@@ -38,6 +38,7 @@ public class BookingTicket {
     private InitHtmlInfo initHtmlInfo;
     private BookingTicketResultInfo bookingTicketResultInfo;
     private String repeatSubmitToken;
+    private List<String> optionalSeatType;
 
     // 设置日志记录
     private static final Logger logger = LoggerFactory.getLogger(BookingTicket.class);
@@ -211,6 +212,30 @@ public class BookingTicket {
     }
 
     /**
+     *      提取可以选择的座位, 设置 optionalSeatType
+     *
+     * @return  T -- true
+     *          F -- false
+     */
+    private boolean setOptionalSeatType(){
+        String[] trainSeatList = this.initHtmlInfo.getLeftDetails();
+        List<String> seatList = new ArrayList<>();
+        for (String line: trainSeatList){
+            // 一等座(933.00元)有票
+            String seatTypeName = line.split("\\(")[0].trim();
+            String isHasTicket = line.split("\\)")[1].trim();
+            // 有票
+            if (!isHasTicket.contains("无")){
+                seatList.add(ConvertMap.seatNameToNumber(seatTypeName));
+            }
+        }
+        if (seatList.size() > 0){
+            optionalSeatType = seatList;
+            return true;
+        }
+        return false;
+    }
+    /**
      *      从 initDc.html 里 提取 ticketInfoForPassengerForm 字段
      *
      * @param htmlText  网页源码, 从网页源码里提取 ticketInfoForPassengerForm 字段
@@ -299,9 +324,30 @@ public class BookingTicket {
     }
 
     /**
+     *      获取座位号, 从用户输入数组和从initDc页面获取的可预订数组做匹配
+     *      匹配成功返回座位ID, 失败返回null
+     *
+     * @param seatType      用户设置的座位ID(数组)
+     * @return              T -- 座位ID
+     *                      F -- null
+     */
+    private String getSeatType(String[] seatType){
+        if (!setOptionalSeatType()){
+            return null;
+        }
+        for (String optional: optionalSeatType){
+            for (String seat: seatType){
+                if (optional.equals(seat)){
+                    return optional;
+                }
+            }
+        }
+        return null;
+    }
+    /**
      *      请求 checkOrderInfo 页面
      *
-     * @param seatType          seatType
+     * @param seatTypeArr       seatTypeArr
      * @param passengerName     passengerName
      * @param documentType      documentType
      * @param documentNumber    documentNumber
@@ -311,14 +357,26 @@ public class BookingTicket {
      *                          status，passengerTicketStr，oldPassengerStr
      *                          布尔    字符串               字符串
      */
-    public CheckOrderInfoReturnResult checkOrderInfo(String seatType,
+    public CheckOrderInfoReturnResult checkOrderInfo(String[] seatTypeArr,
                                                      String passengerName,
                                                      String documentType,
                                                      String documentNumber,
                                                      String mobile)throws Exception{
+        // 创建结果对象
+        CheckOrderInfoReturnResult checkOrderInfoReturnResult = new CheckOrderInfoReturnResult();
         String checkOrderInfoURL = "https://kyfw.12306.cn/otn/confirmPassenger/checkOrderInfo";
         // 创建post请求并设置请求头
         HttpPost checkOrderInfoRequest = Tools.setRequestHeader(new HttpPost(checkOrderInfoURL), true, false, false);
+        String seatType = getSeatType(seatTypeArr);
+        // 座位号为null
+        if (seatType == null){
+            logger.info("没有符合条件的座位类型");
+            checkOrderInfoReturnResult.setStatus(false);
+            checkOrderInfoReturnResult.setPassengerTicketStr("");
+            checkOrderInfoReturnResult.setOldPassengerStr("");
+            checkOrderInfoReturnResult.setSeatType("");
+            return checkOrderInfoReturnResult;
+        }
         // 拼接请求数据 passengerTicketStr
         String passengerTicketStr = StringUtils.join(new String[] {
                 seatType,
@@ -349,7 +407,7 @@ public class BookingTicket {
         // 设置请求数据
         checkOrderInfoRequest.setEntity(Tools.doPostData(checkOrderInfoData));
         CloseableHttpResponse response = null;
-        CheckOrderInfoReturnResult checkOrderInfoReturnResult = new CheckOrderInfoReturnResult();
+
         try{
             response = this.session.execute(checkOrderInfoRequest);
             if (response.getStatusLine().getStatusCode() == 200){
@@ -363,6 +421,7 @@ public class BookingTicket {
                     checkOrderInfoReturnResult.setStatus(true);
                     checkOrderInfoReturnResult.setPassengerTicketStr(passengerTicketStr);
                     checkOrderInfoReturnResult.setOldPassengerStr(oldPassengerStr);
+                    checkOrderInfoReturnResult.setSeatType(seatType);
                     return checkOrderInfoReturnResult;
                 }
             }
@@ -373,6 +432,7 @@ public class BookingTicket {
         checkOrderInfoReturnResult.setStatus(false);
         checkOrderInfoReturnResult.setPassengerTicketStr("");
         checkOrderInfoReturnResult.setOldPassengerStr("");
+        checkOrderInfoReturnResult.setSeatType("");
         return checkOrderInfoReturnResult;
     }
 
@@ -574,7 +634,9 @@ public class BookingTicket {
             }
         }
         finally {
-            if(response!=null) response.close();
+            if(response!=null) {
+                response.close();
+            }
         }
         return false;
     }
@@ -597,7 +659,7 @@ public class BookingTicket {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.info(e.getMessage());
         }
         return "";
     }
@@ -679,7 +741,7 @@ public class BookingTicket {
      * @param documentType          证件类型
      * @param documentNumber        证件号码
      * @param mobile                手机号码
-     * @param seatType              座位类型
+     * @param seatTypeArr           座位类型, 数组
      * @param expectSeatNumber      期望的座位，例如A,B,C,E,F -> A,F 靠窗， C,E 靠过道
      * @return
      */
@@ -693,8 +755,8 @@ public class BookingTicket {
                                                                String documentType,
                                                                String documentNumber,
                                                                String mobile,
-                                                               String seatType,
-                                                               String expectSeatNumber)throws Exception{
+                                                               String[] seatTypeArr,
+                                                               String expectSeatNumber){
         BookingTicketMethodReturnResult bookingTicketMethodReturnResult = new BookingTicketMethodReturnResult();
         SubmitOrderRequestReturnResult  submitOrderRequestReturnResult;
         CheckOrderInfoReturnResult      checkOrderInfoReturnResult;
@@ -702,92 +764,156 @@ public class BookingTicket {
 
         // 0.
         logger.info("检查登陆状态......");
-        boolean userStauts = Login.checkUserStatus(this.session);
-        if (!userStauts){
+        try {
+            boolean userStauts = Login.checkUserStatus(this.session);
+            if (!userStauts){
+                return bookingTicketMethodReturnResultFalse(this.session);
+            }
+        } catch (Exception e) {
             return bookingTicketMethodReturnResultFalse(this.session);
         }
+
         // 1.
         logger.info("提交订单请求......");
-        submitOrderRequestReturnResult = submitOrderRequest(secretStr,
-                                                            trainDate,
-                                                            backTrainDate,
-                                                            purposeCode,
-                                                            queryFromStationName,
-                                                            queryToStationName);
-        if (!submitOrderRequestReturnResult.getStatus()){
-            logger.info("返回信息：" + submitOrderRequestReturnResult.getMessage());
-            logger.info("获取提交订单请求失败！");
+        try {
+            submitOrderRequestReturnResult = submitOrderRequest(secretStr,
+                                                                trainDate,
+                                                                backTrainDate,
+                                                                purposeCode,
+                                                                queryFromStationName,
+                                                                queryToStationName);
+            if (!submitOrderRequestReturnResult.getStatus()){
+                logger.info("返回信息：" + submitOrderRequestReturnResult.getMessage());
+                logger.info("获取提交订单请求失败！");
+                return bookingTicketMethodReturnResultFalse(this.session);
+            }
+        } catch (Exception e) {
+            logger.info("获取提交订单请求出错！");
             return bookingTicketMethodReturnResultFalse(this.session);
         }
+
         // 2.
         logger.info("获取初始化数据并设置......");
-        boolean initDcStatus = initDc();
-        if (!initDcStatus){
-            logger.info("获取初始化数据失败！");
+        try {
+            boolean initDcStatus = initDc();
+            if (!initDcStatus){
+                logger.info("获取初始化数据失败！");
+                return bookingTicketMethodReturnResultFalse(this.session);
+            }
+        } catch (Exception e) {
+            logger.info("获取初始化数据出错！");
             return bookingTicketMethodReturnResultFalse(this.session);
         }
+
         // 3.
         logger.info("获取乘客dto......");
-        boolean getPassengerDtoStatus = getPassengerDto();
-        if (!getPassengerDtoStatus){
-            logger.info("获取乘客dto失败！");
+        try {
+            boolean getPassengerDtoStatus = getPassengerDto();
+            if (!getPassengerDtoStatus){
+                logger.info("获取乘客dto失败！");
+                return bookingTicketMethodReturnResultFalse(this.session);
+            }
+        } catch (Exception e) {
+            logger.info("获取乘客dto出错！");
             return bookingTicketMethodReturnResultFalse(this.session);
         }
+
         // 4
         logger.info("检查订单信息......");
-        checkOrderInfoReturnResult = checkOrderInfo(seatType,
-                                                    passengerName,
-                                                    documentType,
-                                                    documentNumber,
-                                                    mobile);
-        if(!checkOrderInfoReturnResult.getStatus()){
-            logger.info("检查订单信息失败！");
+        try {
+            checkOrderInfoReturnResult = checkOrderInfo(seatTypeArr,
+                                                        passengerName,
+                                                        documentType,
+                                                        documentNumber,
+                                                        mobile);
+            if(!checkOrderInfoReturnResult.getStatus()){
+                logger.info("检查订单信息失败！");
+                return bookingTicketMethodReturnResultFalse(this.session);
+            }
+        } catch (Exception e) {
+            logger.info("检查订单信息出错！");
             return bookingTicketMethodReturnResultFalse(this.session);
         }
+
         // 5.
         logger.info("获取排队信息......");
-        boolean getQueueCountStatus = getQueueCount(seatType);
-        if(!getQueueCountStatus){
-            logger.info("获取排队信息失败！");
+        try {
+            String seatType = checkOrderInfoReturnResult.getSeatType();
+            boolean getQueueCountStatus = getQueueCount(seatType);
+            if(!getQueueCountStatus){
+                logger.info("获取排队信息失败！");
+                return bookingTicketMethodReturnResultFalse(this.session);
+            }
+        } catch (Exception e) {
+            logger.info("获取排队信息出错！");
             return bookingTicketMethodReturnResultFalse(this.session);
         }
+
         // 6.
         logger.info("获取确认信息......");
-        boolean confirmStatus = confirmSingleForQueue(expectSeatNumber,
-                                                      checkOrderInfoReturnResult.getPassengerTicketStr(),
-                                                      checkOrderInfoReturnResult.getOldPassengerStr());
-        if(!confirmStatus){
-            logger.info("获取确认信息失败！");
+        try {
+            boolean confirmStatus = confirmSingleForQueue(expectSeatNumber,
+                                                          checkOrderInfoReturnResult.getPassengerTicketStr(),
+                                                          checkOrderInfoReturnResult.getOldPassengerStr());
+            if(!confirmStatus){
+                logger.info("获取确认信息失败！");
+                return bookingTicketMethodReturnResultFalse(this.session);
+            }
+        } catch (Exception e) {
+            logger.info("获取确认信息出错！");
             return bookingTicketMethodReturnResultFalse(this.session);
         }
+
         // 7.
         logger.info("查询订单等待时间......");
-        queryOrderWaitTimeReturnResult = queryOrderWaitTime();
-        if(!queryOrderWaitTimeReturnResult.getStatus()){
-            logger.info("查询订单等待时间失败，但是可能已经成功订票，准备发送通知。");
+        try {
+            queryOrderWaitTimeReturnResult = queryOrderWaitTime();
+            if(!queryOrderWaitTimeReturnResult.getStatus()){
+                logger.info("查询订单等待时间失败，但是可能已经成功订票，准备发送通知。");
+                bookingTicketMethodReturnResult.setStatus(true);
+                bookingTicketMethodReturnResult.setBookingTicketResult("可能已经预定成功，请登陆12306网站查看。");
+                return bookingTicketMethodReturnResult;
+            }
+        } catch (Exception e) {
+            logger.info("查询订单等待时间出错，但是可能已经成国公订票，准备发送通知。");
             bookingTicketMethodReturnResult.setStatus(true);
             bookingTicketMethodReturnResult.setBookingTicketResult("可能已经预定成功，请登陆12306网站查看。");
             return bookingTicketMethodReturnResult;
         }
+
         // 8.
         logger.info("尝试从队列获取订单结果......");
-        boolean resultOrderStatus = resultOrderForQueue(queryOrderWaitTimeReturnResult.getOrderId());
-        if(!resultOrderStatus){
-            logger.info("从队列获取订单结果失败！");
+        try {
+            boolean resultOrderStatus = resultOrderForQueue(queryOrderWaitTimeReturnResult.getOrderId());
+            if(!resultOrderStatus){
+                logger.info("从队列获取订单结果失败！");
+                return bookingTicketMethodReturnResultFalse(this.session);
+            }
+        } catch (Exception e) {
+            logger.info("从队列获取订单结果出错！");
             return bookingTicketMethodReturnResultFalse(this.session);
         }
+
         // 9.
         logger.info("获取订票结果......");
-        boolean resultBookingStauts = resultBookingTicketHtml();
-        if(!resultBookingStauts){
-            logger.info("获取订票结果失败，但是可能已经成功订票，准备发送通知。");
+        try {
+            boolean resultBookingStauts = resultBookingTicketHtml();
+            if(!resultBookingStauts){
+                logger.info("获取订票结果失败，但是可能已经成功订票，准备发送通知。");
+                bookingTicketMethodReturnResult.setStatus(true);
+                bookingTicketMethodReturnResult.setBookingTicketResult("可能已经预定成功，请登陆12306网站查看。");
+                return bookingTicketMethodReturnResult;
+            }
+        } catch (Exception e) {
+            logger.info("获取订票结果出错，但是可能已经成功订票，准备发送通知。");
             bookingTicketMethodReturnResult.setStatus(true);
             bookingTicketMethodReturnResult.setBookingTicketResult("可能已经预定成功，请登陆12306网站查看。");
             return bookingTicketMethodReturnResult;
         }
+
         // 10.
-        // logger.info("转换订票结果到字符串......");
-        logger.info("即将发送结果......");
+        /// logger.info("转换订票结果到字符串......");
+        logger.info("发送通知......");
         bookingTicketMethodReturnResult.setStatus(true);
         bookingTicketMethodReturnResult.setBookingTicketResult(bookingTicketResultToString());
         bookingTicketMethodReturnResult.setSession(this.session);
@@ -813,7 +939,7 @@ public class BookingTicket {
 }
 
 /**
- * return: status, bookingTicketResult
+ * return: status, bookingTicketResult, session
  */
 class BookingTicketMethodReturnResult{
     public boolean getStatus() {
@@ -870,10 +996,21 @@ class CheckOrderInfoReturnResult{
     public void setOldPassengerStr(String oldPassengerStr) {
         this.oldPassengerStr = oldPassengerStr;
     }
+    public String getSeatType() {
+        return seatType;
+    }
+    public void setSeatType(String seatType) {
+        this.seatType = seatType;
+    }
 
     private boolean status;
     private String  passengerTicketStr;
     private String  oldPassengerStr;
+    private String  seatType;
+
+
+
+
 
 }
 

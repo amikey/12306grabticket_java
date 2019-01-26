@@ -151,11 +151,11 @@ public class Captcha{
      * @throws Exception        异常处理
      */
     public MarkCaptchaReturnResult markCaptchaV1(String captchaBase64Str) throws Exception{
-        CloseableHttpClient markHttpClient = HttpClients.createDefault();
+        CloseableHttpClient markHttpClient = Tools.getSession(30000);
         // 标记服务器地址
         String markURL = "http://192.168.1.252:4999/mark_captcha/12306/";
         // 创建Post请求对象
-        HttpPost markHttpPost = Tools.setRequestHeader(new HttpPost(markURL), false, true, false);
+        HttpPost markHttpPost = Tools.setRequestHeader(new HttpPost(markURL), false, false, false);
         // 创建请求表单
         Map<String, String> markCaptchaV1Data = new HashMap<>();
         markCaptchaV1Data.put("image_base64", captchaBase64Str);
@@ -175,8 +175,12 @@ public class Captcha{
                 markCaptchaReturnResult.setResult(markResutl);
                 return markCaptchaReturnResult;
             }
-        }
-        finally {
+        }catch (Exception e){
+            logger.info("识别验证码超时！");
+            markCaptchaReturnResult.setStatus(false);
+            markCaptchaReturnResult.setResult("");
+            return markCaptchaReturnResult;
+        } finally {
             if (response != null){
                 response.close();
             }
@@ -198,7 +202,7 @@ public class Captcha{
      * @throws Exception            异常处理
      */
     public MarkCaptchaReturnResult markCaptchaV2(String captchaBase64Str) throws Exception{
-        CloseableHttpClient markHttpClient = HttpClients.createDefault();
+        CloseableHttpClient markHttpClient = Tools.getSession(30000);
 
         // 需要用到的URL
         String checkURL = "http://60.205.200.159/api";
@@ -248,8 +252,12 @@ public class Captcha{
                     }
                 }
             }
-        }
-        finally {
+        }catch (Exception e){
+            logger.info("识别验证码超时！");
+            markCaptchaReturnResult.setStatus(false);
+            markCaptchaReturnResult.setResult("");
+            return markCaptchaReturnResult;
+        } finally {
             if (response != null){
                 response.close();
             }

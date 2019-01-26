@@ -1,4 +1,5 @@
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.net.ntp.TimeStamp;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -11,13 +12,14 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import  org.apache.commons.net.ntp.NTPUDPClient;
+import org.apache.commons.net.ntp.TimeInfo;
+
 import java.io.*;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.net.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Tools {
 
@@ -181,5 +183,44 @@ public class Tools {
                 // 构建对象
                 .build();
         return HttpClients.custom().setDefaultRequestConfig(requestConfig).build();
+    }
+
+
+    public static void main(String[] args) throws Exception{
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+
+        /*
+        设置时区后会发生一个不太名白的错误，取getTime()后返回1969年，但是程序
+        以1970年为边界，所以会返回一个负数
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        */
+        Date date = dateFormat.parse(dateFormat.format(new Date(System.currentTimeMillis())));
+        Date afterDate = dateFormat.parse("16:00");
+        Date beforeDate = dateFormat.parse("23:00");
+        if (afterDate.getTime() <= date.getTime() && date.getTime() <= beforeDate.getTime()){
+            System.out.println("系统维护时间");
+
+        }else{
+            System.out.println("正常运行......");
+        }
+
+        System.out.println(isMaintain());
+    }
+
+    private static Boolean isMaintain() throws Exception{
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        Date date = dateFormat.parse(dateFormat.format(new Date(System.currentTimeMillis())));
+        Date afterDate = dateFormat.parse("16:00");
+        Date beforeDate = dateFormat.parse("23:00");
+        if (afterDate.getTime() <= date.getTime() && date.getTime() <= beforeDate.getTime()){
+            // System.out.println("系统维护时间");
+            return true;
+
+        }else{
+            // System.out.println("正常运行......");
+            return false;
+        }
     }
 }

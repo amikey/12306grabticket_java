@@ -62,7 +62,7 @@ public class Login {
      *
      * @throws Exception    异常处理
      */
-    public LoginReturnResult login(String markResult) throws Exception{
+    private LoginReturnResult login(String markResult) throws Exception{
         String loginURL = "https://kyfw.12306.cn/passport/web/login";
         HttpPost loginRequest = Tools.setRequestHeader(new HttpPost(loginURL), true, false, false);
         // 创建请求数据
@@ -121,7 +121,7 @@ public class Login {
      *                      布尔    字符串    字符串
      * @throws Exception
      */
-    public GetLoginTkReturnResult getLoginTk() throws Exception{
+    private GetLoginTkReturnResult getLoginTk() throws Exception{
         String getLoginTkURL = "https://kyfw.12306.cn/passport/web/auth/uamtk";
         HttpPost getLoginTkRequest = Tools.setRequestHeader(new HttpPost(getLoginTkURL), true, false, false);
         // 创建请求表单
@@ -174,7 +174,7 @@ public class Login {
      *                      布尔    字符串    字符串                   字符串
      * @throws Exception
      */
-    public CheckLoginTkReturnResult checkLoginTk() throws Exception{
+    private CheckLoginTkReturnResult checkLoginTk() throws Exception{
         String checkLoginTkURL = "https://kyfw.12306.cn/otn/uamauthclient";
         HttpPost checkLoginTkRequest = Tools.setRequestHeader(new HttpPost(checkLoginTkURL), true, false, false);
         Map<String, String> checkLoginTkData = new HashMap<>();
@@ -363,9 +363,9 @@ public class Login {
         MarkCaptchaReturnResult markCaptchaReturnResult;
         try{
             markCaptchaReturnResult = captcha.markCaptchaV2(getCaptchaReturnResult.getResult());
-            // 标记失败停止
             if (!markCaptchaReturnResult.getStatus()){
                 // 公共服务器标记失败用自建服务器标记
+                logger.info("公共服务器标记失败尝试用自建服务器......");
                 markCaptchaReturnResult = captcha.markCaptchaV1(getCaptchaReturnResult.getResult());
                 if (!markCaptchaReturnResult.getStatus()){
                     logger.info("识别验证码失败！");
