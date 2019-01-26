@@ -1,19 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="48e5f0ec-0316-452f-a3b7-d57695af8116" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/BookingTicket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/BookingTicket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Captcha.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Captcha.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ConvertMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ConvertMap.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Login.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/QueryTicketInfo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/QueryTicketInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/SendMessage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/SendMessage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Tools.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Tools.java" afterDir="false" />
-    </list>
+    <list default="true" id="48e5f0ec-0316-452f-a3b7-d57695af8116" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -94,12 +82,12 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="439">
-                <caret line="43" column="10" selection-start-line="43" selection-start-column="10" selection-end-line="43" selection-end-column="10" />
+              <first_editor relative-caret-position="748">
+                <caret line="44" column="6" selection-start-line="44" selection-start-column="6" selection-end-line="44" selection-end-column="6" />
               </first_editor>
               <second_editor />
             </state>
@@ -118,10 +106,10 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3383">
+            <state relative-caret-position="222">
               <caret line="199" column="21" selection-start-line="199" selection-start-column="21" selection-end-line="199" selection-end-column="21" />
             </state>
           </provider>
@@ -190,26 +178,7 @@
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="grabticket" type="b2602c69:ProjectViewProjectNode" />
-              <item name="grabticket" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="grabticket" type="b2602c69:ProjectViewProjectNode" />
-              <item name="grabticket" type="462c0819:PsiDirectoryNode" />
-              <item name="img" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -242,7 +211,7 @@
       <workItem from="1547830793628" duration="3872000" />
       <workItem from="1548027694055" duration="1436000" />
       <workItem from="1548158555767" duration="3277000" />
-      <workItem from="1548521518605" duration="1743000" />
+      <workItem from="1548521518605" duration="2055000" />
     </task>
     <task id="LOCAL-00001" summary="修改登陆逻辑以及验证码获取失败导致程序退出">
       <created>1548028697270</created>
@@ -328,11 +297,18 @@
       <option name="project" value="LOCAL" />
       <updated>1548161694759</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="修复已知BUG">
+      <created>1548523424474</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1548523424475</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10328000" />
+    <option name="totallyTimeSpent" value="10640000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -413,7 +389,8 @@
     <MESSAGE value="再次修改readme" />
     <MESSAGE value="修改readme" />
     <MESSAGE value="继续修改readme" />
-    <option name="LAST_COMMIT_MESSAGE" value="继续修改readme" />
+    <MESSAGE value="修复已知BUG" />
+    <option name="LAST_COMMIT_MESSAGE" value="修复已知BUG" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/main/java/captcha/Captcha.java" />
@@ -437,13 +414,6 @@
           <folding>
             <element signature="method#isMaintain#0;class#Main#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3383">
-          <caret line="199" column="21" selection-start-line="199" selection-start-column="21" selection-end-line="199" selection-end-column="21" />
         </state>
       </provider>
     </entry>
@@ -515,10 +485,17 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="439">
-            <caret line="43" column="10" selection-start-line="43" selection-start-column="10" selection-end-line="43" selection-end-column="10" />
+          <first_editor relative-caret-position="748">
+            <caret line="44" column="6" selection-start-line="44" selection-start-column="6" selection-end-line="44" selection-end-column="6" />
           </first_editor>
           <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="199" column="21" selection-start-line="199" selection-start-column="21" selection-end-line="199" selection-end-column="21" />
         </state>
       </provider>
     </entry>
